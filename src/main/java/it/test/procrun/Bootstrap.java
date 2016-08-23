@@ -13,8 +13,13 @@ public class Bootstrap extends JarLauncher {
 
     protected void launch(String[] args, String mainClass, ClassLoader classLoader, boolean wait)
             throws Exception {
-        Runnable runner = createMainMethodRunner(mainClass, args, classLoader);
-        Thread runnerThread = new Thread(runner);
+        Thread.currentThread().setContextClassLoader(classLoader);
+        Thread runnerThread = new Thread(() -> {
+            try {
+                createMainMethodRunner(mainClass, args, classLoader).run();
+            }
+            catch(Exception ex) {}
+        });
         runnerThread.setContextClassLoader(classLoader);
         runnerThread.setName(Thread.currentThread().getName());
         runnerThread.start();
